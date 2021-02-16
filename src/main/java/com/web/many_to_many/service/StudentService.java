@@ -10,8 +10,8 @@ import com.web.many_to_many.repository.StudentRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -26,6 +26,7 @@ public class StudentService {
     @Autowired
     private CourseService courseService;
 
+    @Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity saveStudent(StudentCreateDto studentCreateDto) {
         if (StringUtils.isEmpty(studentCreateDto.getFirstName()) ||
             StringUtils.isEmpty(studentCreateDto.getSecondName()) ||
@@ -36,18 +37,16 @@ public class StudentService {
         return studentRepository.save(studentCreateMapper.toEntity(studentCreateDto));
     }
 
-    @Transactional
     public StudentEntity getStudentById(Long studentId) {
         return studentRepository.findById(studentId)
                 .orElseThrow(() -> new NotFoundException("Student not found for id: " + studentId));
     }
 
-    @Transactional
     public List<StudentEntity> getAllStudents() {
         return studentRepository.findAll();
     }
 
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity updateStudentById(StudentCreateDto studentCreateDto,
                                            Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
@@ -74,7 +73,7 @@ public class StudentService {
         return existingStudent;
     }
 
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
     public void deleteStudentById(Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
         if (existingStudent.getDeleted() != null || existingStudent.getDeleted()) {
@@ -84,7 +83,7 @@ public class StudentService {
         studentRepository.save(existingStudent);
     }
 
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity addCourseToStudent(Long studentId, Long courseId) {
         StudentEntity existingStudent = getStudentById(studentId);
         CourseEntity existingCourse = courseService.getCourseById(courseId);
@@ -100,7 +99,7 @@ public class StudentService {
         return studentRepository.save(existingStudent);
     }
 
-    @Transactional
+    @Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity removeCourseFromStudent(Long studentId, Long courseId) {
         StudentEntity existingStudent = getStudentById(studentId);
         CourseEntity existingCourse = courseService.getCourseById(courseId);

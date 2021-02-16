@@ -8,8 +8,8 @@ import com.web.many_to_many.repository.CourseRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -21,6 +21,7 @@ public class CourseService {
     @Autowired
     private CourseCreateMapper courseCreateMapper;
 
+    @Transactional(rollbackFor = NotFoundException.class)
     public CourseEntity saveCourse(CourseCreateDto courseCreateDto) {
         if (StringUtils.isEmpty(courseCreateDto.getTitle())) {
             throw new NotFoundException("Field are empty! Please, check this!");
@@ -29,18 +30,16 @@ public class CourseService {
         return courseRepository.save(courseCreateMapper.toEntity(courseCreateDto));
     }
 
-    @Transactional
     public CourseEntity getCourseById(Long courseId) {
         return courseRepository.findById(courseId)
                 .orElseThrow(() -> new NotFoundException("Course not found for id: " + courseId));
     }
 
-    @Transactional
     public List<CourseEntity> getAllCourses() {
         return courseRepository.findAll();
     }
 
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
     public CourseEntity updateCourseById(CourseCreateDto courseCreateDto,
                                          Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
@@ -61,7 +60,7 @@ public class CourseService {
         return existingCourse;
     }
 
-    @Transactional
+    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
     public void deleteCourseById(Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
         if (existingCourse.getDeleted() != null || existingCourse.getDeleted()) {
