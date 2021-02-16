@@ -20,6 +20,7 @@ public interface StudentMapper {
     StudentEntity toEntity(StudentCreateDto studentCreateDto);
 
     @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "id", ignore = true)
     void updatingStudentEntityFromStudentCreateDto(StudentCreateDto source,
                                                    @MappingTarget StudentEntity target);
 }

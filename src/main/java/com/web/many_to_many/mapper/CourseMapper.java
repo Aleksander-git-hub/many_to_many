@@ -18,6 +18,7 @@ public interface CourseMapper {
     CoursePlainDto toPlainDto(CourseEntity courseEntity);
 
     @Mapping(target = "deleted", ignore = true)
+    @Mapping(target = "id", ignore = true)
     void updatingCourseEntityFromCourseCreateDto(CourseCreateDto source,
                                                  @MappingTarget CourseEntity target);
 }
