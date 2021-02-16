@@ -5,7 +5,6 @@ import com.web.many_to_many.dto.create.StudentCreateDto;
 import com.web.many_to_many.dto.plain.StudentPlainDto;
 import com.web.many_to_many.entity.StudentEntity;
 import com.web.many_to_many.mapper.StudentMapper;
-import com.web.many_to_many.mapper.plain.StudentPlainMapper;
 import com.web.many_to_many.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +21,11 @@ public class StudentController {
     private StudentService studentService;
 
     @Autowired
-    private StudentPlainMapper studentPlainMapper;
-
-    @Autowired
     private StudentMapper studentMapper;
 
     @PostMapping(value = "/student")
     public StudentPlainDto saveStudent(@RequestBody StudentCreateDto studentCreateDto) {
-        return studentPlainMapper.toPlainDto(studentService.saveStudent(studentCreateDto));
+        return studentMapper.toPlainDto(studentService.saveStudent(studentCreateDto));
     }
 
     @GetMapping(value = "/student/{studentId}")
@@ -40,7 +36,7 @@ public class StudentController {
     @GetMapping(value = "/students")
     public List<StudentPlainDto> getAllStudents() {
         List<StudentEntity> studentEntities = studentService.getAllStudents();
-        return studentEntities.stream().map(studentPlainMapper::toPlainDto).collect(Collectors.toList());
+        return studentEntities.stream().map(studentMapper::toPlainDto).collect(Collectors.toList());
     }
 
     @PutMapping(value = "/student/{studentId}")

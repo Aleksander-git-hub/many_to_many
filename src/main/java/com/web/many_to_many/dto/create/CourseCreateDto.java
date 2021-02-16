@@ -14,7 +14,7 @@ public class CourseCreateDto {
 
     private String title;
 
-    private Boolean deleted;
+    private Boolean deleted = false;
 
     private List<StudentCreateDto> students;
 }

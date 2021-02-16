@@ -5,7 +5,7 @@ import com.web.many_to_many.entity.CourseEntity;
 import com.web.many_to_many.entity.StudentEntity;
 import com.web.many_to_many.exceptions.AlreadyAssignException;
 import com.web.many_to_many.exceptions.NotFoundException;
-import com.web.many_to_many.mapper.create.StudentCreateMapper;
+import com.web.many_to_many.mapper.StudentMapper;
 import com.web.many_to_many.repository.StudentRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class StudentService {
     private StudentRepository studentRepository;
 
     @Autowired
-    private StudentCreateMapper studentCreateMapper;
+    private StudentMapper studentMapper;
 
     @Autowired
     private CourseService courseService;
@@ -33,8 +33,7 @@ public class StudentService {
             StringUtils.isEmpty(studentCreateDto.getEmail())) {
             throw new NotFoundException("Fields are empty! Please, check this!");
         }
-        studentCreateDto.setDeleted(false);
-        return studentRepository.save(studentCreateMapper.toEntity(studentCreateDto));
+        return studentRepository.save(studentMapper.toEntity(studentCreateDto));
     }
 
     public StudentEntity getStudentById(Long studentId) {
@@ -46,7 +45,7 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
+    @Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity updateStudentById(StudentCreateDto studentCreateDto,
                                            Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
@@ -58,32 +57,21 @@ public class StudentService {
         if (existingStudent.getDeleted()) {
             throw new NotFoundException("Student is deleted already for id: " + studentId);
         }
-        return studentRepository.save(updateExistingStudent(existingStudent, studentCreateDto));
+        studentMapper.updatingStudentEntityFromStudentCreateDto(studentCreateDto, existingStudent);
+        return studentRepository.save(existingStudent);
     }
 
-    private StudentEntity updateExistingStudent
-            (StudentEntity existingStudent, StudentCreateDto studentCreateDto) {
-        existingStudent.setFirstName(studentCreateDto.getFirstName());
-        existingStudent.setSecondName(studentCreateDto.getSecondName());
-        existingStudent.setAge(studentCreateDto.getAge());
-        existingStudent.setEmail(studentCreateDto.getEmail());
-        existingStudent.setGender(studentCreateDto.getGender());
-        existingStudent.setDeleted(studentCreateDto.getDeleted());
-        existingStudent.setCourses(studentCreateMapper.toEntity(studentCreateDto).getCourses());
-        return existingStudent;
-    }
-
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
+    @Transactional(rollbackFor = NotFoundException.class)
     public void deleteStudentById(Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
-        if (existingStudent.getDeleted() != null || existingStudent.getDeleted()) {
+        if (existingStudent.getDeleted()) {
             throw new NotFoundException("Student is deleted already for id: " + studentId);
         }
         existingStudent.setDeleted(true);
         studentRepository.save(existingStudent);
     }
 
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
+    @Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity addCourseToStudent(Long studentId, Long courseId) {
         StudentEntity existingStudent = getStudentById(studentId);
         CourseEntity existingCourse = courseService.getCourseById(courseId);

@@ -22,7 +22,7 @@ public class StudentCreateDto {
 
     private String email;
 
-    private Boolean deleted;
+    private Boolean deleted = false;
 
     private List<CourseCreateDto> courses;
 }

@@ -3,7 +3,7 @@ package com.web.many_to_many.service;
 import com.web.many_to_many.dto.create.CourseCreateDto;
 import com.web.many_to_many.entity.CourseEntity;
 import com.web.many_to_many.exceptions.NotFoundException;
-import com.web.many_to_many.mapper.create.CourseCreateMapper;
+import com.web.many_to_many.mapper.CourseMapper;
 import com.web.many_to_many.repository.CourseRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class CourseService {
     private CourseRepository courseRepository;
 
     @Autowired
-    private CourseCreateMapper courseCreateMapper;
+    private CourseMapper courseMapper;
 
     @Transactional(rollbackFor = NotFoundException.class)
     public CourseEntity saveCourse(CourseCreateDto courseCreateDto) {
@@ -27,7 +27,7 @@ public class CourseService {
             throw new NotFoundException("Field are empty! Please, check this!");
         }
         courseCreateDto.setDeleted(false);
-        return courseRepository.save(courseCreateMapper.toEntity(courseCreateDto));
+        return courseRepository.save(courseMapper.toEntity(courseCreateDto));
     }
 
     public CourseEntity getCourseById(Long courseId) {
@@ -39,7 +39,7 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
+    @Transactional(rollbackFor = NotFoundException.class)
     public CourseEntity updateCourseById(CourseCreateDto courseCreateDto,
                                          Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
@@ -49,21 +49,14 @@ public class CourseService {
         if (existingCourse.getDeleted()) {
             throw new NotFoundException("Course is deleted already for id: " + courseId);
         }
-        return courseRepository.save(updateExistingCourse(existingCourse, courseCreateDto));
+        courseMapper.updatingCourseEntityFromCourseCreateDto(courseCreateDto, existingCourse);
+        return courseRepository.save(existingCourse);
     }
 
-    private CourseEntity updateExistingCourse
-            (CourseEntity existingCourse, CourseCreateDto courseCreateDto) {
-        existingCourse.setTitle(courseCreateDto.getTitle());
-        existingCourse.setDeleted(courseCreateDto.getDeleted());
-        existingCourse.setStudents(courseCreateMapper.toEntity(courseCreateDto).getStudents());
-        return existingCourse;
-    }
-
-    @org.springframework.transaction.annotation.Transactional(rollbackFor = NotFoundException.class)
+    @Transactional(rollbackFor = NotFoundException.class)
     public void deleteCourseById(Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
-        if (existingCourse.getDeleted() != null || existingCourse.getDeleted()) {
+        if (existingCourse.getDeleted()) {
             throw new NotFoundException("Course is deleted already for id: " + courseId);
         }
         existingCourse.setDeleted(true);

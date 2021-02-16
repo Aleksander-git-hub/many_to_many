@@ -3,6 +3,7 @@ package com.web.many_to_many.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.util.List;
@@ -28,7 +29,8 @@ public class StudentEntity {
 
     private String email;
 
-    private Boolean deleted = false;
+    //@ColumnDefault("false")
+    private Boolean deleted;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "student_course", joinColumns = @JoinColumn(name = "student_id"),

@@ -5,7 +5,6 @@ import com.web.many_to_many.dto.create.CourseCreateDto;
 import com.web.many_to_many.dto.plain.CoursePlainDto;
 import com.web.many_to_many.entity.CourseEntity;
 import com.web.many_to_many.mapper.CourseMapper;
-import com.web.many_to_many.mapper.plain.CoursePlainMapper;
 import com.web.many_to_many.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,14 +21,11 @@ public class CourseController {
     private CourseService courseService;
 
     @Autowired
-    private CoursePlainMapper coursePlainMapper;
-
-    @Autowired
     private CourseMapper courseMapper;
 
     @PostMapping(value = "/course")
     public CoursePlainDto saveCourse(@RequestBody CourseCreateDto courseCreateDto) {
-        return coursePlainMapper.toPlainDto(courseService.saveCourse(courseCreateDto));
+        return courseMapper.toPlainDto(courseService.saveCourse(courseCreateDto));
     }
 
     @GetMapping(value = "/course/{courseId}")
@@ -40,7 +36,7 @@ public class CourseController {
     @GetMapping(value = "/courses")
     public List<CoursePlainDto> getAllCourses() {
         List<CourseEntity> courseEntities = courseService.getAllCourses();
-        return courseEntities.stream().map(coursePlainMapper::toPlainDto).collect(Collectors.toList());
+        return courseEntities.stream().map(courseMapper::toPlainDto).collect(Collectors.toList());
     }
 
     @PutMapping(value = "/course/{courseId}")
