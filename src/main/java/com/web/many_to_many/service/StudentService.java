@@ -28,11 +28,7 @@ public class StudentService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public StudentEntity saveStudent(StudentCreateDto studentCreateDto) {
-        if (StringUtils.isEmpty(studentCreateDto.getFirstName()) ||
-            StringUtils.isEmpty(studentCreateDto.getSecondName()) ||
-            StringUtils.isEmpty(studentCreateDto.getEmail())) {
-            throw new NotFoundException("Fields are empty! Please, check this!");
-        }
+        validateStudentCreateDto(studentCreateDto);
         return studentRepository.save(studentMapper.toEntity(studentCreateDto));
     }
 
@@ -45,15 +41,11 @@ public class StudentService {
         return studentRepository.findAll();
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public StudentEntity updateStudentById(StudentCreateDto studentCreateDto,
                                            Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
-        if (StringUtils.isEmpty(studentCreateDto.getFirstName()) ||
-                StringUtils.isEmpty(studentCreateDto.getSecondName()) ||
-                StringUtils.isEmpty(studentCreateDto.getEmail())) {
-            throw new NotFoundException("Fields are empty! Please, check this!");
-        }
+        validateStudentCreateDto(studentCreateDto);
         if (existingStudent.getDeleted()) {
             throw new NotFoundException("Student is deleted already for id: " + studentId);
         }
@@ -61,7 +53,7 @@ public class StudentService {
         return studentRepository.save(existingStudent);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public void deleteStudentById(Long studentId) {
         StudentEntity existingStudent = getStudentById(studentId);
         if (existingStudent.getDeleted()) {
@@ -71,7 +63,7 @@ public class StudentService {
         studentRepository.save(existingStudent);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public StudentEntity addCourseToStudent(Long studentId, Long courseId) {
         StudentEntity existingStudent = getStudentById(studentId);
         CourseEntity existingCourse = courseService.getCourseById(courseId);
@@ -87,7 +79,7 @@ public class StudentService {
         return studentRepository.save(existingStudent);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public StudentEntity removeCourseFromStudent(Long studentId, Long courseId) {
         StudentEntity existingStudent = getStudentById(studentId);
         CourseEntity existingCourse = courseService.getCourseById(courseId);
@@ -97,5 +89,13 @@ public class StudentService {
         }
         existingStudent.getCourses().remove(existingCourse);
         return studentRepository.save(existingStudent);
+    }
+
+    private void validateStudentCreateDto(StudentCreateDto studentCreateDto) {
+        if (StringUtils.isEmpty(studentCreateDto.getFirstName()) ||
+                StringUtils.isEmpty(studentCreateDto.getSecondName()) ||
+                StringUtils.isEmpty(studentCreateDto.getEmail())) {
+            throw new NotFoundException("Fields are empty! Please, check this!");
+        }
     }
 }

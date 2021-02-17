@@ -21,7 +21,7 @@ public class CourseService {
     @Autowired
     private CourseMapper courseMapper;
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public CourseEntity saveCourse(CourseCreateDto courseCreateDto) {
         if (StringUtils.isEmpty(courseCreateDto.getTitle())) {
             throw new NotFoundException("Field are empty! Please, check this!");
@@ -39,7 +39,7 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public CourseEntity updateCourseById(CourseCreateDto courseCreateDto,
                                          Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
@@ -53,7 +53,7 @@ public class CourseService {
         return courseRepository.save(existingCourse);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
+    @Transactional
     public void deleteCourseById(Long courseId) {
         CourseEntity existingCourse = getCourseById(courseId);
         if (existingCourse.getDeleted()) {
